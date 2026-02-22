@@ -25,7 +25,7 @@ def get_data():
     return loader.load_data()
 
 def main():
-    path='model_relu_3k_epoch_bigger_hidden_3_hidden.pkl'
+    path= 'models/model_relu_3k_epoch_bigger_hidden_3_hidden.pkl'
     nn = neural_network.load_network(path)
 
     app = QApplication(sys.argv)
