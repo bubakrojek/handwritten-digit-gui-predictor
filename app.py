@@ -8,7 +8,7 @@ from PyQt6.QtCore import Qt, QPoint, QTimer
 from PyQt6.QtGui import QPainter, QPen, QImage, QTransform
 from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QLabel, QDialog, QLineEdit, \
     QDialogButtonBox
-
+from PyQt6_SwitchControl import SwitchControl
 
 class NumberInput(QDialog):
     def __init__(self,parent=None):
@@ -120,6 +120,8 @@ class MainWindow(QWidget):
         self.to_numpy_button = QPushButton('Predict')
         self.feed_new_number_button=QPushButton("Feed new number to network")
 
+        self.switch_button=SwitchControl()
+
         self.button.clicked.connect(self.drawing_area.clear)
         self.to_numpy_button.clicked.connect(self.on_predict_button_clicked)
         self.feed_new_number_button.clicked.connect(self.on_feed_new_number_button_clicked)
@@ -131,11 +133,20 @@ class MainWindow(QWidget):
         main_layout = QHBoxLayout()
 
         layout = QVBoxLayout()
+        layout2 = QVBoxLayout()
+
+        button_layout=QHBoxLayout()
 
         main_layout.addLayout(layout, 2)
 
-        main_layout.addWidget(self.label, 1, alignment=Qt.AlignmentFlag.AlignCenter)
+        button_layout.addWidget(QLabel("Predicted number"))
+        button_layout.addWidget(self.switch_button,alignment=Qt.AlignmentFlag.AlignCenter)
+        button_layout.addWidget(QLabel("Top 3 probabilities"))
 
+        layout2.addLayout(button_layout)
+        layout2.addWidget(self.label, 1, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        main_layout.addLayout(layout2,1)
         layout.addWidget(self.drawing_area)
         layout.addWidget(self.button)
         layout.addWidget(self.to_numpy_button)
@@ -145,9 +156,20 @@ class MainWindow(QWidget):
 
     def on_predict_button_clicked(self):
         image = self.drawing_area.to_numpy()
-        prediction = self.network.predict(np.array(image))
-        self.label.setStyleSheet('font-size: 72pt;')
-        self.label.setText(f'{prediction[0]}')
+        if self.switch_button.isChecked():
+            predictions = self.network.predict_probs(np.array(image))[:,0]
+
+            predictions=sorted(enumerate(predictions),key=lambda x: x[1],reverse=True)[:3]
+
+            formatted_vals=[f'{i} : {val:.2f}' for i, val in predictions]
+
+            self.label.setStyleSheet('font-size: 36pt;')
+            print(f'{"\n".join(formatted_vals)}')
+            self.label.setText(f'{"\n".join(formatted_vals)}')
+        else:
+            prediction = self.network.predict(np.array(image))
+            self.label.setStyleSheet('font-size: 72pt;')
+            self.label.setText(f'{prediction[0]}')
 
     def get_augmented_images(self):
 
