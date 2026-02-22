@@ -25,7 +25,8 @@ def get_data():
     return loader.load_data()
 
 def main():
-    nn = neural_network.load_network('model_relu_3k_epoch_bigger_hidden_3_hidden.pkl')
+    path='model_relu_3k_epoch_bigger_hidden_3_hidden.pkl'
+    nn = neural_network.load_network(path)
 
     app = QApplication(sys.argv)
 
@@ -34,9 +35,11 @@ def main():
     window.resize(800, 600)
     window.show()
 
+    nn.save_network(path)
+
     '''
     (x_train, y_train), (x_test, y_test) = get_data()
-
+    print(x_train.shape)
     x_train = x_train / 255
     x_test = x_test / 25
 
@@ -50,6 +53,7 @@ def main():
     nn= neural_network.NeuralNetwork([28 * 28, 256, 128,64, 10], activations=['relu', 'relu','relu',  'softmax'], learning_rate=0.01)
     nn.train(x_train, y_train_hot_encoded, epochs=3000, iterations=10)
     nn.save_network(f'model_relu_3k_epoch_bigger_hidden_3_hidden')'''
+
 
     # for i,x in enumerate(output):
     # print(i,x[0])

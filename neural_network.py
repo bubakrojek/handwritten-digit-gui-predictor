@@ -60,6 +60,7 @@ def example_net():
     print(f"Oczekiwane wyjścia:\n{Y_train}\n")
 
     print("\n=== Wyniki po treningu ===")
+    output=nn.predict(X_train[:,-1])
     print(f"Predykcje: {output.round(3)}")
     print(f"Oczekiwane: {Y_train}")
     print(f"Błąd: {np.abs(output - Y_train).round(3)}")
@@ -122,7 +123,7 @@ class NeuralNetwork:
 
                 output = self.forward(X)
                 self.backward(y)
-                if epoch % 10 == 0 and i == iterations - 1:
+                if epoch % 10 == 0 and i == iterations - 1 and epochs>=10:
                     preds = np.argmax(output, axis=0)
                     true = np.argmax(y, axis=0)
                     acc = np.mean(preds == true)
