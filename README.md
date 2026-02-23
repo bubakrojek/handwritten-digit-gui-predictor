@@ -77,4 +77,18 @@ path = 'models/model_relu_3k_epoch_bigger_hidden_3_hidden.pkl'
 nn = neural_network.load_network(path)
 ```
 
-Mam narazie tyle, ma to sens?
+---
+
+## Model and Theory
+
+### Sizes
+
+#### Theory
+
+
+### Feed forward
+
+#### Theory
+
+
+
