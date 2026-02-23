@@ -158,13 +158,10 @@ class MainWindow(QWidget):
         image = self.drawing_area.to_numpy()
         if self.switch_button.isChecked():
             predictions = self.network.predict_probs(np.array(image))[:,0]
-
             predictions=sorted(enumerate(predictions),key=lambda x: x[1],reverse=True)[:3]
-
             formatted_vals=[f'{i} : {val:.2f}' for i, val in predictions]
 
             self.label.setStyleSheet('font-size: 36pt;')
-            print(f'{"\n".join(formatted_vals)}')
             self.label.setText(f'{"\n".join(formatted_vals)}')
         else:
             prediction = self.network.predict(np.array(image))
