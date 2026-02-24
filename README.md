@@ -85,6 +85,14 @@ nn = neural_network.load_network(path)
 
 #### Theory
 
+```math
+\begin{split}
+Layer sizes:n^{[j]}  ϵN,based on network assumptions\\\\
+Weights: W^{[i]} =[n^{[i]} ×n^{[i-1]}]\\\\
+Inputs:X^{[i]} =[n^{[i]} ×1]\\\\
+for i ={1,..,No.hidden layers+1}  and     j={0,..,No.hidden layers+2}
+\end{split}
+```
 
 ### Feed forward
 
