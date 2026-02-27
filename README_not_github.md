@@ -179,7 +179,7 @@ class Layer:
 
 As we can see we have two parameters when making instances of the Layer class related to sizes, such as output and input
 size.
-The input is the size of i-1 layers - $n^{[i-1]}$ and the output is the size of the ith layer - $n^{[i]}$. Then arrays
+The input is the size of i-1 layers - $ n^{[i-1]} $ and the output is the size of the ith layer - $n^{[i]}$. Then arrays
 of the sizes that were mentioned in theory are created.
 ---
 
@@ -258,11 +258,9 @@ $$
 
 This is a phase where each layer takes a result of activations from the previous layer. Then the layer calculates its
 value using matrix multiplication formula:
-
 $$
 W^{[i]} \cdot A^{[i-1]} + b^{[i]}=Z^{[i]}
 $$
-
 In a result we get **$Z^{[i]}$** value, which we use as an argument in activation function and to obtain **$A^{[i]}$**
 which is passed to next layer.
 
@@ -298,76 +296,53 @@ class Layer:
 
 In this phase we need to calculate the influence of each parameter on loss to improve our scores.
 We need to calculate these gradients:
-
 $$
 \frac{\partial L}{\partial W^{[i]}},\; \frac{\partial L}{\partial b^{[i]}},\; \frac{\partial L}{\partial A^{[i-1]}}
 $$
-
 Probably the most important part is the chain rule, which allows us to calculate these gradients.
 
 For the $W^{[i]}$ part we can write it as:
-
-$$\frac{\partial L}{\partial W^{[i]}} \; = \; \frac{\partial L}{\partial Z^{[i]}} \cdot \frac{\partial Z^{[i]}}{\partial W^{[i]}}$$
-
+$$ \frac{\partial L}{\partial W^{[i]}} \; = \; \frac{\partial L}{\partial Z^{[i]}} \cdot \frac{\partial Z^{[i]}}{\partial W^{[i]}} $$
 We can calculate these partial derivatives separately.
 
-$$\frac{\partial Z^{[i]}}{\partial W^{[i]}} = \frac{\partial (W^{[i]} \cdot A^{[i-1]} + b^{[i]})}{\partial W^{[i]}} = A^{[i-1]}$$
-
-And then the **$Z^{[i]}$** derivative:
+$$ \frac{\partial Z^{[i]}}{\partial W^{[i]}} = \frac{\partial (W^{[i]} \cdot A^{[i-1]} + b^{[i]})}{\partial W^{[i]}} = A^{[i-1]}  $$
+And then the **$ Z^{[i]} $** derivative:
 
 For the ReLU and Sigmoid activation, basically for all hidden layers, we can calculate it as shown below:
 
-$$\frac{\partial L}{\partial Z^{[i]}} \; = \; \frac{\partial L}{\partial A^{[i]}} \cdot \frac{\partial A^{[i]}}{\partial Z^{[i]}}$$
-
+$$ \frac{\partial L}{\partial Z^{[i]}} \; = \; \frac{\partial L}{\partial A^{[i]}} \cdot \frac{\partial A^{[i]}}{\partial Z^{[i]}} $$
 We need to assume that:
+$$ dA^{[i]}=\frac{\partial L}{\partial A^{[i]}} $$
+And the $ dA^{[i]} $ is a input argument that we propagate from the next layer, starting from the last.
 
-$$dA^{[i]}=\frac{\partial L}{\partial A^{[i]}}$$
-
-And the $dA^{[i]}$ is a input argument that we propagate from the next layer, starting from the last.
-
-The second part of the $Z^{[i]}$ partial derivative we can calculate remembering:
-
-
-$$A^{[i]}=f^{[i]}(Z^{[i]})$$
-
+The second part of the $ Z^{[i]} $ partial derivative we can calculate remembering:
+$$ A^{[i]}=f^{[i]}(Z^{[i]}) $$
 So the result is:
-
-$$\frac{\partial A^{[i]}}{\partial Z^{[i]}} = \frac{\partial [f^{[i]}(Z^{[i]})]}{\partial Z^{[i]}}=f'(Z^{[i]}) \cdot {Z^{[i]}}'= f'(Z^{[i]}) \cdot 1$$
-
+$$ \frac{\partial A^{[i]}}{\partial Z^{[i]}} = \frac{\partial [f^{[i]}(Z^{[i]})]}{\partial Z^{[i]}}=f'(Z^{[i]}) \cdot {Z^{[i]}}'= f'(Z^{[i]}) \cdot 1  $$
 And finally:
-
-$$dZ^{[i]}=\frac{\partial L}{\partial Z^{[i]}} \; = \; \frac{\partial L}{\partial A^{[i]}} \cdot \frac{\partial A^{[i]}}{\partial Z^{[i]}} = dA^{[i]} \cdot f'(Z^{[i]})$$
+$$ dZ^{[i]}=\frac{\partial L}{\partial Z^{[i]}} \; = \; \frac{\partial L}{\partial A^{[i]}} \cdot \frac{\partial A^{[i]}}{\partial Z^{[i]}} = dA^{[i]} \cdot f'(Z^{[i]})  $$
 
 But for the last, output layers, which activation function is Softmax with
-Cross-entropy, $dZ^{[No.hidden \; layers+1]}$ value is:
-
-$$dZ^{[No.hidden \; layers+1]} = A^{[No.hidden \; layers+1]} - Y$$
-
+Cross-entropy, $ dZ^{[No.hidden \; layers+1]} $ value is:
+$$ dZ^{[No.hidden \; layers+1]} = A^{[No.hidden \; layers+1]} - Y $$
 But calculations of this part won't be described in this project, so we have to assume this formula.
 
 \
-Back to $W^ {[i]}$ we get:
+Back to $ W^ {[i]} $ we get:
+$$ dW^{[i]}= \frac{\partial L}{\partial W^{[i]}} \; = \; \frac{\partial L}{\partial Z^{[i]}} \cdot \frac{\partial Z^{[i]}}{\partial W^{[i]}} = dZ^{[i]} \cdot A^{[i-1]} = dA^{[i]} \cdot f'(Z^{[i]}) \cdot A^{[i-1]}   $$
 
-$$dW^{[i]}= \frac{\partial L}{\partial W^{[i]}} \; = \; \frac{\partial L}{\partial Z^{[i]}} \cdot \frac{\partial Z^{[i]}}{\partial W^{[i]}} = dZ^{[i]} \cdot A^{[i-1]} = dA^{[i]} \cdot f'(Z^{[i]}) \cdot A^{[i-1]}$$
-
-Then the $b^{[i]}$ part:
-
-$$\frac{\partial L}{\partial b^{[i]}}= \frac{\partial L}{\partial Z^{[i]}} \cdot \frac{\partial Z^{[i]}}{\partial b^{[i]}} = dZ^{[i]} \cdot \frac{\partial (W^{[i]} \cdot A^{[i-1]} + b^{[i]})}{\partial b^{[i]}} = dZ^{[i]} \cdot 1 = dA^{[i]} \cdot f'(Z^{[i]})$$
-
+Then the $ b^{[i]} $ part:
+$$ \frac{\partial L}{\partial b^{[i]}}= \frac{\partial L}{\partial Z^{[i]}} \cdot \frac{\partial Z^{[i]}}{\partial b^{[i]}} = dZ^{[i]} \cdot \frac{\partial (W^{[i]} \cdot A^{[i-1]} + b^{[i]})}{\partial b^{[i]}} = dZ^{[i]} \cdot 1 = dA^{[i]} \cdot f'(Z^{[i]})  $$
 \
-Last but not least, the $dA^{[i-1]}$
-
-$$dA^{[i-1]}=\frac{\partial L}{\partial A^{[i-1]}} = \frac{\partial L}{\partial Z^{[i]}} \cdot \frac{\partial Z^{[i]}}{\partial A^{[i-1]}} = dZ^{[i]} \cdot \frac{\partial (W^{[i]} \cdot A^{[i-1]} + b^{[i]})}{\partial A^{[i-1]}} = dZ^{[i]} \cdot  W^{[i]}$$
+Last but not least, the $ dA^{[i-1]} $
+$$  dA^{[i-1]}=\frac{\partial L}{\partial A^{[i-1]}} = \frac{\partial L}{\partial Z^{[i]}} \cdot \frac{\partial Z^{[i]}}{\partial A^{[i-1]}} = dZ^{[i]} \cdot \frac{\partial (W^{[i]} \cdot A^{[i-1]} + b^{[i]})}{\partial A^{[i-1]}} = dZ^{[i]} \cdot  W^{[i]}   $$
 
 \
 But remembering that we are making the batch gradient descent, we need to calculate mean values for whole batch out of
 the error sums, we will get:
-
-$$dW^{[i]}= \frac{1}{m} \cdot dZ^{[i]} \cdot {A^{[i-1]}}^T$$
-
-$$db^{[i]}= \frac{1}{m} \cdot dZ^{[i]}$$
-
-$$dA^{[i-1]}= {W^{[i]}}^T \cdot dZ^{[i]}$$
+$$ dW^{[i]}= \frac{1}{m} \cdot dZ^{[i]} \cdot {A^{[i-1]}}^T $$
+$$ db^{[i]}= \frac{1}{m} \cdot dZ^{[i]} $$
+$$ dA^{[i-1]}= {W^{[i]}}^T \cdot dZ^{[i]} $$
 
 #### Code
 
