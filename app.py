@@ -128,7 +128,7 @@ class MainWindow(QWidget):
 
         self.label = QLabel()
 
-        self.label.setText('Draw a number')
+        self.label.setText('Draw a digit')
         self.label.setStyleSheet('font-size: 30pt;')
         main_layout = QHBoxLayout()
 
