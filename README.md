@@ -130,6 +130,7 @@ $$
 W^{[i]} \cdot X^{[i-1]} + b^{[i]}=Z^{[i]}\\\\
 \end{gather}
 $$
+
 $$
 \begin{gather}
 \text{Example of multiplication and addition:}\\\\
@@ -147,7 +148,7 @@ f
 g\\
 h
 \end{bmatrix}_{2 \times 1}
-=
+\text{=}
 \begin{bmatrix}
 a \cdot e + b \cdot f + g\\
 c \cdot e + d \cdot f + h
