@@ -55,6 +55,7 @@ Correcting network
   <img src="docs/correcting_network.png" width="805" alt="correcting_network">
 
 </p>
+
 ---
 
 ## Features
@@ -115,9 +116,9 @@ nn = neural_network.load_network(path)
 $$
 \begin{gather}
 \text{Layer sizes: }n^{[j]} \in \mathbb{N} \text{, based on network assumptions}\\\\
-Weights: W^{[i]} =[n^{[i]} ×n^{[i-1]}]\\\\
-Inputs: X^{[i]} =[n^{[i]} ×1]\\\\
-Biases: b^{[i]}=[n^{[i]}×1]\\\\
+Weights: W^{[i]} =[n^{[i]} \times n^{[i-1]}]\\\\
+Inputs: X^{[i]} =[n^{[i]} \times 1]\\\\
+Biases: b^{[i]}=[n^{[i]} \times 1]\\\\
 for\; i =[1,...,No.hidden \; layers+1] \; and \; j=[0,...,No.hidden \; layers+2]
 \end{gather}
 $$
@@ -127,26 +128,30 @@ Sizes derive from matrix multiplication, which is described with this formula:
 $$
 \begin{gather}
 W^{[i]} \cdot X^{[i-1]} + b^{[i]}=Z^{[i]}\\\\
+\end{gather}
+$$
+$$
+\begin{gather}
 \text{Example of multiplication and addition:}\\\\
 \begin{bmatrix}
 a & b\\
 c & d
-\end{bmatrix}_{2x2}
+\end{bmatrix}_{2 \times 2}
 \cdot
 \begin{bmatrix}
 e\\
 f
-\end{bmatrix}_{2x1}
+\end{bmatrix}_{2 \times 1}
 \text{+}
 \begin{bmatrix}
 g\\
 h
-\end{bmatrix}_{2x1}
+\end{bmatrix}_{2 \times 1}
 =
 \begin{bmatrix}
 a \cdot e + b \cdot f + g\\
 c \cdot e + d \cdot f + h
-\end{bmatrix}_{2x1}
+\end{bmatrix}_{2 \times 1}
 \end{gather}
 $$
 
