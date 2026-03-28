@@ -19,6 +19,11 @@ def ce(y_true, y_pred):
     y_pred = np.clip(y_pred, eps, 1 - eps)
     return -np.mean(np.sum(y_true * np.log(y_pred), axis=0))
 
+def linear(val):
+    return val
+
+def linear_derivative(val):
+    return np.ones_like(val)
 
 def sigmoid(val):
     return 1 / (1 + np.exp(-np.clip(val, -500, 500)))
@@ -35,6 +40,11 @@ def relu(val):
 def relu_derivative(val):
     return (val > 0).astype(float)
 
+def tanh(val):
+    return np.tanh(val)
+
+def tanh_derivative(val):
+    return 1-val**2
 
 def soft_max(values):
     shifted = values - np.max(values, axis=0, keepdims=True)
@@ -60,7 +70,7 @@ def example_net():
     print(f"Oczekiwane wyjścia:\n{Y_train}\n")
 
     print("\n=== Wyniki po treningu ===")
-    output=nn.predict(X_train[:,-1])
+    output = nn.predict(X_train[:, -1])
     print(f"Predykcje: {output.round(3)}")
     print(f"Oczekiwane: {Y_train}")
     print(f"Błąd: {np.abs(output - Y_train).round(3)}")
@@ -95,6 +105,8 @@ class NeuralNetwork:
             layer = Layer(layer_sizes[i], layer_sizes[i + 1], activation)
             self.layers.append(layer)
 
+        self.layers[-1].is_output=True
+
     def forward(self, X):
         A = X
         for layer in self.layers:
@@ -102,7 +114,8 @@ class NeuralNetwork:
         return A
 
     def backward(self, Y):
-        dA = self.layers[-1].output - Y if self.layers[-1].activation==soft_max or self.layers[-1].activation==sigmoid else (self.layers[-1].output - Y)/(2*self.layers[-1].output.shape[1])
+        dA = self.layers[-1].output - Y if self.layers[-1].activation_function == soft_max or self.layers[
+            -1].activation_function == sigmoid else (self.layers[-1].output - Y) *2 #/ (self.layers[-1].output.shape[1])
 
         for layer in reversed(self.layers):
             dA, dW, db = layer.backward(dA, Y)
@@ -123,12 +136,24 @@ class NeuralNetwork:
 
                 output = self.forward(X)
                 self.backward(y)
-                if epoch % 10 == 0 and i == iterations - 1 and epochs>=10:
-                    preds = np.argmax(output, axis=0)
-                    true = np.argmax(y, axis=0)
-                    acc = np.mean(preds == true)
-                    loss = bce(y, output) if self.layers[-1].b.shape[0] == 1 else ce(y, output)
-                    print(f"Epoch: {epoch + 10} - loss: {loss:.4f} - acc: {acc:.4f}, batch size: {X.shape}")
+                if epoch % 10 == 0 and i == iterations - 1 and epochs >= 10:
+                    if self.layers[-1].activation_function == soft_max:
+                        preds = np.argmax(output, axis=0)
+                        true = np.argmax(y, axis=0)
+                        acc = np.mean(preds == true)
+                        loss = bce(y, output) if self.layers[-1].b.shape[0] == 1 else ce(y, output)
+                        print(f"Epoch: {epoch + 10} - loss: {loss:.4f} - acc: {acc:.4f}, batch size: {X.shape}")
+                    elif self.layers[-1].activation_function == sigmoid:
+                        preds = np.round(output)
+                        true = y
+                        acc = np.mean(preds == true)
+                        loss = bce(y, output) if self.layers[-1].b.shape[0] == 1 else ce(y, output)
+                        print(f"Epoch: {epoch + 10} - loss: {loss:.4f} - acc: {acc:.4f}, batch size: {X.shape}")
+                    else:
+                        preds = output
+                        true = y
+                        loss = mse(true, preds)
+                        print(f"Epoch: {epoch + 10} - loss: {loss:.4f}, batch size: {X.shape}")
 
     # return output
 
@@ -137,8 +162,13 @@ class NeuralNetwork:
             X = X.reshape(X.shape[0], 1)
 
         output = self.forward(X)
-        max_prob = np.argmax(output, axis=0)
-        return max_prob
+        if self.layers[-1].activation_function == soft_max:
+            max_prob = np.argmax(output, axis=0)
+            return max_prob
+        elif self.layers[-1].activation_function == sigmoid:
+            return (output > 0.5).astype(int)
+        else:
+            return output
 
     def predict_probs(self, X):
         if X.ndim == 1:
@@ -153,12 +183,24 @@ class NeuralNetwork:
 
 
 class Layer:
-    def __init__(self, input_size, output_size, activation_function):
+    def __init__(self, input_size, output_size, activation_function, is_output=False):
         self.W = np.random.randn(output_size, input_size) * np.sqrt(1.0 / input_size)
         self.b = np.zeros((output_size, 1))
         self.input = None
         self.output = None
-        self.activation_function = sigmoid if activation_function == 'sigmoid' else soft_max if activation_function == 'softmax' else relu
+        if activation_function == 'sigmoid':
+            self.activation_function = sigmoid
+        elif  activation_function == 'softmax':
+            self.activation_function = soft_max
+        elif  activation_function == 'relu':
+            self.activation_function = relu
+        elif  activation_function == 'linear':
+            self.activation_function = linear
+        elif activation_function=='tanh':
+            self.activation_function = tanh
+
+        #self.activation_function = sigmoid if activation_function == 'sigmoid' else soft_max if activation_function == 'softmax' else relu if activation_function == 'relu' else linear
+        self.is_output=is_output
 
     def forward(self, A_prev):
         self.input = A_prev
@@ -168,9 +210,26 @@ class Layer:
 
     def backward(self, dA, y_true):
         m = self.input.shape[1]
-        dZ = (dA * sigmoid_derivative(
+
+        if self.activation_function == soft_max:
+            dZ = self.output - y_true
+        elif self.activation_function == sigmoid:
+            if self.is_output:
+                dZ = self.output - y_true
+            else:
+                dZ = (dA * sigmoid_derivative(
+                    self.output))
+        elif self.activation_function == relu:
+            dZ = (
+                    dA * relu_derivative(self.output))
+        elif self.activation_function == tanh:
+            dZ = (
+                    dA * tanh_derivative(self.output))
+        else:
+            dZ = dA * linear_derivative(self.output)
+        """dZ = (dA * sigmoid_derivative(
             self.output)) if self.activation_function == sigmoid else self.output - y_true if self.activation_function == soft_max else (
-                dA * relu_derivative(self.output))
+                dA * relu_derivative(self.output))"""
         dW = (1 / m) * dZ @ self.input.T
         db = (1 / m) * np.sum(dZ, axis=1, keepdims=True)
 
