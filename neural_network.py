@@ -102,7 +102,7 @@ class NeuralNetwork:
         return A
 
     def backward(self, Y):
-        dA = self.layers[-1].output - Y
+        dA = self.layers[-1].output - Y if self.layers[-1].activation==soft_max or self.layers[-1].activation==sigmoid else (self.layers[-1].output - Y)/(2*self.layers[-1].output.shape[1])
 
         for layer in reversed(self.layers):
             dA, dW, db = layer.backward(dA, Y)
